@@ -1014,13 +1014,13 @@ def draw_residences(drawing, residences, x, y, show_density = False):
     max_y = y + BLOCK_DEPTH
     colors = ['dimgray', 'gray', 'darkgray', 'silver', 'lightgray', 'gainsboro', 'whitesmoke', 
           'lightslategray', 'azure', 'oldlace', 'lightcyan', 'palegoldenrod']
-    density_colors = {1: 'mistyrose', 2: 'pink', 3: 'pink', 3: 'pink',4: 'lightcoral', 
-                       5: 'salmon', 6: 'salmon', 7: 'salmon',
-                      8: 'orangered', 9: 'orangered', 10: 'orangered', 
-                      11: 'red', 12: 'red', 13: 'red', 14: 'red', 15: 'red', 
-                      16: 'crimson', 17: 'crimson',  18: 'crimson',  
-                      19: 'firebrick', 20: 'firebrick', 21: 'firebrick',  
-                      22: 'maroon', 23: 'maroon', 24: 'maroon', 25: 'maroon'}
+    density_colors = {0: white, 1: 'FFDEDE', 2: 'FFC7C7', 3: 'FFB7B7', 3: 'FFB2B2',4: 'FFA7A7', 
+                       5: 'FFA1A1', 6: 'FF9999', 7: 'FF9090',
+                      8: 'FF8C8C', 9: 'FF8686', 10: 'FF8181', 
+                      11: 'FD7676', 12: 'FF6B6B', 13: 'FD6464', 14: 'FD5D5D', 15: 'FC5555', 
+                      16: 'FD4F4F', 17: 'FD4646',  18: 'F93D3D',  
+                      19: 'F93636', 20: 'EB2727', 21: 'E51F1F',  
+                      22: 'B21313', 23: 'A10D0D', 24: '920707', 25: '6C0404'}
     #Number of floors in each residence
     floor_counts = [r.floors for r in residences_sorted]
     #How many of the 120 points in a 5x24 grid each building gets
