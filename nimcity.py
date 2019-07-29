@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from tqdm.autonotebook import tqdm
-#import drawSvg as draw
+import drawSvg as draw
 #CONSTANTS:
 BLOCK_SIZE = 51000
 MIN_RES_SIZE = 425
@@ -79,16 +79,26 @@ class Developer(object):
                     #The building's max size will be the available area
                     max_res_size = block.area_avail()
             #Otherwise if max building size is equal to or smaller than area available, no problem
-            size_dist = np.arange(block.min_res_size(), max_res_size + 1)
-            #Initialize new residence object
+            #Range of possible sizes for the building from min to max
+            size_range = np.arange(block.min_res_size(), max_res_size + 1)
             #Give residence a random size within the realm of possibility
-            size = np.random.choice(size_dist)
+            size = np.random.choice(size_range)
+            #Instantiate new residence object
             residence = Residence(step, block, size, price_sqft)
             #Add residence to last list of residences built on the block
             block.residences[-1].append(residence)
             return residence
     
 class District(object):
+    '''
+    District is a group of Blocks. ALthough it is heirarchically 'higher'
+    than Block, District is instantiated afterward and gets Blocks assigned
+    to it rather than setting up its own Blocks upon its own instantiation.
+    District gets zoned by a Council and then passes its zoning down onto
+    its Blocks. When its zoning changes, the new zone gets updated in all its
+    Blocks, each of which may now contain 'underzoned' buildings eligible 
+    for demolition.
+    '''
     def __init__(self):
         self.zoned_as = []
         self.blocks = [[]]
@@ -98,6 +108,14 @@ class District(object):
         #self.blocks.append([b for b in self.blocks[-1]])        
         
 class Block(object):
+    '''
+    Block is the basic unit of buildable land within the sim. Each block
+    can only fit as many Residences as its size allows. Block's zoning
+    changes when its District's zoning changes. Its buildings built during
+    its earlier zoning may thus become 'underzoned' and eligible for 
+    demolition. The entire rich history of construction and demolition
+    within the sim is recorded in the Blocks' lists.
+    '''
     def __init__(self, size):
         self.size = size
         self.district = None
@@ -130,8 +148,8 @@ class Block(object):
 class Residence(object):
     '''
     Residence is the only building object in the sim. It is built and
-    demolished by a Developer (with approval from a Council) and it sits
-    on a Block. It contains units for Households to live in. A Residence 
+    demolished by a Developer (with approval from a Council) on a block. 
+    It contains units for Households to live in. A Residence 
     with one Unit is functionally a single-family home. Its "size" is its 
     footprint area on the Block. If zoning allows, a Residence may have several
     floors, each with the same footprint area as the first floor. A multi-story 
@@ -154,7 +172,8 @@ class Residence(object):
         self.zoned_as = self.block.zoned_as[-1]
 
         #Can have as many floors as allowed by the zoning of the block & district.
-        self.floors = 1 if self.zoned_as == 1 else np.random.choice(np.arange(2, self.zoned_as + 1))
+        self.floors = 1 if self.zoned_as == 1 else \
+                np.random.choice(np.arange(2, self.zoned_as + 1))
         #Fill interior of building with units.
         self.units = [[]]
         self.create_units()
@@ -298,13 +317,27 @@ class Household(object):
             self.owns[-1] = False
             
 class Simulation(object):
+    '''
+    WHen the Simulation starts it gets filled with people and buildings
+    according to the parameters input by the user. Time step 0 in the sim
+    is assumed to be the first time step at which the user is modeling an
+    existing city, not the time step at which a city is created from scratch.
+    (Cities are not built that way.)
+    The Simulation runs through its time steps in a 'turned-based' way, with
+    each process happening in the same order at every time step so that all the
+    objects' lists can update correctly.
+    It is assumed that a time step is 1 year. Smaller time increments 
+    would be possible--with much greater run times--but some parameters would 
+    need to be adjusted for shorter time steps to make sense, e.g. INFLATION
+    would need to be scaled down from the generic annual rate of 2%.
+    '''
     def __init__(self, 
                  land, zoning, price_sqft,
                  dev_count, init_rounds_of_dev, council_count, construct_p, demolish_p,
                  pop_growth, has_avg, has_std, own_p):
         self.zoning = zoning #Instructions for Council to zone/rezone districts each year
-        #HEEEEREEEE
-        self.zoning_max = max(set([z for z_dict in self.zoning for k,z in z_dict.items()]))#Highest zoning
+        #Highest zoning
+        self.zoning_max = max(set([z for z_dict in self.zoning for k,z in z_dict.items()]))        
         self.price_sqft = [price_sqft] #Price of new housing units
         self.pop_growth = pop_growth #List of increments to increase population by
         self.has_avg = [has_avg] #Average spending power of households
@@ -320,13 +353,14 @@ class Simulation(object):
         self.blocks = [blocks]
     
         #Map all blocks onto districts as evenly as possible. 
-        #This is done randomly, not by a council, as neighborhoods
+        #This is done randomly, not by a council, just as neighborhoods
         #would coalesce organically in real life.
         districts = self.create_districts(self.blocks[-1])
         self.districts = [districts]
         
         ### II. LET THERE BE GOVERNMENT FOR THE LAND.
         #Create councils.
+        #Just one council object for now.
         councils = self.create_councils(council_count, construct_p, demolish_p)
         self.councils = [councils]
         
@@ -372,6 +406,7 @@ class Simulation(object):
         print('\n')
         print(f'Time Step {self.step}')
         print('\n')
+
         ### 1. Update list of blocks in the sim.
         self.blocks.append([b for b in self.blocks[-1]])
         
@@ -971,7 +1006,7 @@ class History(object):
                                columns = ['spending_power', 'spending_on_housing', 'size_of_housing', 'districts_zoned_as'])
         return random_hh
 
-def draw_residences(drawing, residences, x, y):
+def draw_residences(drawing, residences, x, y, show_density = False):
     #Hard coded with block 'height' of 5
     residences_sorted = sorted([r for r in residences], key = lambda r: r.size, reverse = True)
     base_y = y
@@ -979,6 +1014,15 @@ def draw_residences(drawing, residences, x, y):
     max_y = y + BLOCK_DEPTH
     colors = ['dimgray', 'gray', 'darkgray', 'silver', 'lightgray', 'gainsboro', 'whitesmoke', 
           'lightslategray', 'azure', 'oldlace', 'lightcyan', 'palegoldenrod']
+    density_colors = {1: 'mistyrose', 2: 'pink', 3: 'pink', 3: 'pink',4: 'lightcoral', 
+                       5: 'salmon', 6: 'salmon', 7: 'salmon',
+                      8: 'orangered', 9: 'orangered', 10: 'orangered', 
+                      11: 'red', 12: 'red', 13: 'red', 14: 'red', 15: 'red', 
+                      16: 'crimson', 17: 'crimson',  18: 'crimson',  
+                      19: 'firebrick', 20: 'firebrick', 21: 'firebrick',  
+                      22: 'maroon', 23: 'maroon', 24: 'maroon', 25: 'maroon'}
+    #Number of floors in each residence
+    floor_counts = [r.floors for r in residences_sorted]
     #How many of the 120 points in a 5x24 grid each building gets
     dots = [r.size // 425 for r in residences_sorted]
     #i.e. street frontage in "dots"
@@ -987,22 +1031,24 @@ def draw_residences(drawing, residences, x, y):
     #(Most buildings will have a depth of 5, the whole depth of the block.)
     depths = [5 if (dot // 5) > 0 else dot for dot in dots]
     previous_width = 0
-    for w, d in zip (widths, depths):
+    for w, d, f in zip (widths, depths, floor_counts):
         #If the depth of this building plus the previous would exceed the edge of the block
         if (y + d) > max_y:
             #Go back to y of 0, edge the bottom edge of the block
             y = base_y
             #Start to the right of the previous building, not in front of it
             x += previous_width
+        fill = np.random.choice(colors) if not show_density else density_colors[f]
         drawing.append(draw.Rectangle(x,y,w,d, 
-                                      fill = np.random.choice(colors),
+                                      fill = fill,
                                       stroke_width = '0.1', stroke = 'black'))
         #Width of this building to use next
         previous_width = w
         #Depth of this buidlign to try to put next building in front of
         y += d
 
-def draw_district(drawing, column_max, blocks, time_step):
+def draw_districts(drawing, column_max, blocks, time_step, 
+                show_density = False):
 #Test of blocks with buildings together
 
     block = draw.Lines((0), (0),
@@ -1035,6 +1081,6 @@ def draw_district(drawing, column_max, blocks, time_step):
                 y += 7
                 alley = True
         drawing.append(draw.Use('block', x, y))
-        draw_residences(drawing, b.residences[time_step], x, y)
+        draw_residences(drawing, b.residences[time_step], x, y, show_density)
         x += 26
         column += 1
