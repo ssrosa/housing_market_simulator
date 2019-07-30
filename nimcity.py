@@ -568,7 +568,6 @@ class Simulation(object):
         step; if so, rezones the district to the value of the key. Otherwise, 
         copies the   district's zoning from the previous time step. (Districts 
         don't have their own update method.)
-
         '''
         #For all districts and their corresponding dictionary of zoning instructions.
         for district, zs_for_district in zip(self.districts[-1], self.zoning):
@@ -726,7 +725,6 @@ class Simulation(object):
         A household can take a unit that ncosts less than or equal to
         its spending power. Some rich households may wind up getting 
         cheap units. Units may go untaken; households may go unhoused.
-
         '''
         #New list to avoid popping the original
         hh = [h for h in hh_]
@@ -1014,13 +1012,13 @@ def draw_residences(drawing, residences, x, y, show_density = False):
     max_y = y + BLOCK_DEPTH
     colors = ['dimgray', 'gray', 'darkgray', 'silver', 'lightgray', 'gainsboro', 'whitesmoke', 
           'lightslategray', 'azure', 'oldlace', 'lightcyan', 'palegoldenrod']
-    density_colors = {0: white, 1: 'FFDEDE', 2: 'FFC7C7', 3: 'FFB7B7', 3: 'FFB2B2',4: 'FFA7A7', 
-                       5: 'FFA1A1', 6: 'FF9999', 7: 'FF9090',
-                      8: 'FF8C8C', 9: 'FF8686', 10: 'FF8181', 
-                      11: 'FD7676', 12: 'FF6B6B', 13: 'FD6464', 14: 'FD5D5D', 15: 'FC5555', 
-                      16: 'FD4F4F', 17: 'FD4646',  18: 'F93D3D',  
-                      19: 'F93636', 20: 'EB2727', 21: 'E51F1F',  
-                      22: 'B21313', 23: 'A10D0D', 24: '920707', 25: '6C0404'}
+    density_colors = {0: 'white', 1: '#FFDEDE', 2: '#FFC7C7', 3: '#FFB7B7', 3: '#FFB2B2',4: '#FFA7A7', 
+                       5: '#FFA1A1', 6: '#FF9999', 7: '#FF9090',
+                      8: '#FF8C8C', 9: '#FF8686', 10: '#FF8181', 
+                      11: '#FD7676', 12: '#FF6B6B', 13: '#FD6464', 14: '#FD5D5D', 15: '#FC5555', 
+                      16: '#FD4F4F', 17: '#FD4646',  18: '#F93D3D',  
+                      19: '#F93636', 20: '#EB2727', 21: '#E51F1F',  
+                      22: '#B21313', 23: '#A10D0D', 24: '#920707', 25: '#6C0404'}
     #Number of floors in each residence
     floor_counts = [r.floors for r in residences_sorted]
     #How many of the 120 points in a 5x24 grid each building gets
