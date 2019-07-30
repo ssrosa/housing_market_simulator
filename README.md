@@ -2,6 +2,8 @@
 
 NiMCity is a proof of concept for a simulator that can model the workings of a real-life housing market under simplified conditions. It is meant to help policy-makers craft new housing policies by testing them in a simulated municipality that resembles theirs. NimCity contains 'household', 'developer', and 'council' objects imbued with dynamic behavior to act in their interest, even at the expense of other objects. It contains 'districts', 'blocks', 'residences', and 'units' for the developers to build, households to live in, and councils to govern. 
 
+[behavior.png](attachment:https://raw.githubusercontent.com/ssrosa/housing_market_simulator/master/behavior.png)
+
 behavior![image.png](attachment:image.png)
 
 NimCity does not contain any actual 'space' or geographical data. Its objects understand the space they occupy as floating point numbers. They are attached to each other as attributes. If the simulation were a 'space', its objects' attachments to each other would give it a structure like this:
