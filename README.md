@@ -4,11 +4,9 @@ NiMCity is a proof of concept for a simulator that can model the workings of a r
 
 ![behavior.png](https://raw.githubusercontent.com/ssrosa/housing_market_simulator/master/behavior.png)
 
-behavior![image.png](attachment:image.png)
-
 NimCity does not contain any actual 'space' or geographical data. Its objects understand the space they occupy as floating point numbers. They are attached to each other as attributes. If the simulation were a 'space', its objects' attachments to each other would give it a structure like this:
 
-people_places![image.png](attachment:image.png)
+![people_places.png](https://raw.githubusercontent.com/ssrosa/housing_market_simulator/master/people_places.png)
 
 Households in units, units in residences, residences on blocks, blocks in districts, distrits in the simulation.
 
@@ -16,7 +14,7 @@ To simulate the effect of supply and demand on the cost of housing over time, th
 
 Over time, this may cause the price of housing to depart from inflation.
 
-supply_demand![image.png](attachment:image.png)
+![supply_demand.png](https://raw.githubusercontent.com/ssrosa/housing_market_simulator/master/supply_demand.png)
 
 (The simulation does not contain an algorithm to reduce price in a scenario of over-supply.)
 
