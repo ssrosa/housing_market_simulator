@@ -28,7 +28,7 @@ To run the simulation with around half a million households and half a million h
 
 Objects accumulate personal histories as each time step passes. Each object has lists to record the other objects it was attached to and any numerical attributes, like value for a unit or spending power for a household.
 
-lists![image.png](attachment:image.png)
+![lists.png](https://raw.githubusercontent.com/ssrosa/housing_market_simulator/master/lists.png)
 
 At the end of the simulation, a History object may be created with the simulation passed to it as a parameter. The History object will take about the same amount of time to instantiate as the simulation took to turn. THe history object uses a set of list comprehensions to crunch the loose unstructured data that accumulated during the simulation into tabular data. The tabular data can be extracted and analyzed.
 
