@@ -1005,45 +1005,94 @@ class History(object):
         return random_hh
 
 def draw_residences(drawing, residences, x, y, show_density = False):
-    #Hard coded with block 'height' of 5
+    '''
+    Draws the residences on one block. Residences get their sizes 
+    converted into a base 12 number so that they can fit nicely as small
+    rectangles in a big rectangle. A 5 x 24 block has 120 so-called 'dots'
+    to distribute among all the residences so that they'll fit without 
+    overlapping or spilling outside the block.
+    They are sorted and drawn from largest 
+    to smallest or as well as they fit. 
+    '''
+    #Colors to use when show_density == False
+    #Randomized colors help show different buildings
+    #but don't call too much attention to any one building.
+    #Better for displaying a smaller number of blocks.
+    colors = ['dimgray', 'gray', 'darkgray', 'silver', 'lightgray', 
+              'gainsboro', 'whitesmoke', 'lightslategray', 'azure', 
+              'oldlace', 'lightcyan', 'palegoldenrod']
+    
+    #Colors to use when show_density == True.
+    #A 'gradient' of colors from pale pink to bright red
+    #to show how many floors each building has. Better for 
+    #displaying an entire city at once.
+    density_colors = {0: 'white', 1: '#FFDEDE', 2: '#FFC7C7', 3: '#FFB7B7', 
+                      4: '#FFA7A7', 5: '#FFA1A1', 6: '#FF9999', 7: '#FF9090',
+                      8: '#FF8C8C', 9: '#FF8686', 10: '#FF8181', 11: '#FD7676', 
+                      12: '#FF6B6B', 13: '#FD6464', 14: '#FD5D5D', 15: '#FC5555', 
+                      16: '#FD4F4F', 17: '#FD4646', 18: '#F93D3D', 19: '#F93636', 
+                      20: '#EB2727', 21: '#E51F1F', 22: '#B21313', 23: '#A10D0D', 
+                      24: '#920707', 25: '#6C0404'}
+    
+    #All residences to draw on the block, largest to smallest by size
     residences_sorted = sorted([r for r in residences], key = lambda r: r.size, reverse = True)
+    #Where in the larger drawing of blocks this block starts
     base_y = y
+    #BLock depth is hard-coded as 5 "dots."
     BLOCK_DEPTH = 5
     max_y = y + BLOCK_DEPTH
-    colors = ['dimgray', 'gray', 'darkgray', 'silver', 'lightgray', 'gainsboro', 'whitesmoke', 
-          'lightslategray', 'azure', 'oldlace', 'lightcyan', 'palegoldenrod']
-    density_colors = {0: 'white', 1: '#FFDEDE', 2: '#FFC7C7', 3: '#FFB7B7', 3: '#FFB2B2',4: '#FFA7A7', 
-                       5: '#FFA1A1', 6: '#FF9999', 7: '#FF9090',
-                      8: '#FF8C8C', 9: '#FF8686', 10: '#FF8181', 
-                      11: '#FD7676', 12: '#FF6B6B', 13: '#FD6464', 14: '#FD5D5D', 15: '#FC5555', 
-                      16: '#FD4F4F', 17: '#FD4646',  18: '#F93D3D',  
-                      19: '#F93636', 20: '#EB2727', 21: '#E51F1F',  
-                      22: '#B21313', 23: '#A10D0D', 24: '#920707', 25: '#6C0404'}
-    #Number of floors in each residence
-    floor_counts = [r.floors for r in residences_sorted]
-    #How many of the 120 points in a 5x24 grid each building gets
-    dots = [r.size // 425 for r in residences_sorted]
-    #i.e. street frontage in "dots"
-    widths = [dot // 5 if (dot // 5) > 0 else 1 for dot in dots]
-    #i.e. how far across the depth of the block in "dots".
-    #(Most buildings will have a depth of 5, the whole depth of the block.)
-    depths = [5 if (dot // 5) > 0 else dot for dot in dots]
+    #Initial value for a variable to rememeber how wide the previously-drawn
+    #building was.
     previous_width = 0
-    for w, d, f in zip (widths, depths, floor_counts):
-        #If the depth of this building plus the previous would exceed the edge of the block
-        if (y + d) > max_y:
-            #Go back to y of 0, edge the bottom edge of the block
-            y = base_y
-            #Start to the right of the previous building, not in front of it
-            x += previous_width
-        fill = np.random.choice(colors) if not show_density else density_colors[f]
-        drawing.append(draw.Rectangle(x,y,w,d, 
-                                      fill = fill,
-                                      stroke_width = '0.1', stroke = 'black'))
-        #Width of this building to use next
-        previous_width = w
-        #Depth of this buidlign to try to put next building in front of
-        y += d
+    
+    #For each res, get the following info:
+    #How many of the 120 points in a 5x24 grid each building gets:
+    dots = [r.size // 425 for r in residences_sorted]
+    #Street frontage in "dots":
+    widths = [dot // 5 if (dot // 5) > 0 else 1 for dot in dots]
+    #How far across the depth of the block in "dots":
+    #(Most buildings will have a depth of 5, the whole depth of the block.)
+    depths = [BLOCK_DEPTH if (dot // BLOCK_DEPTH) > 0 else dot for dot in dots]
+    #Number of floors in each residence:
+    #Only used when show_density == True)
+    floor_counts = [r.floors for r in residences_sorted]
+    #Now build a list of dicts with the building plans for each residence
+    r_dicts = [{'w': w, 'd': d, 'f': f} \
+                    for w, d, f in zip (widths, depths, floor_counts)]
+    
+    #While there remain any building plans
+    while r_dicts:
+        #Iterate over the building plans to find one that will fit 
+        #on top of the previous
+        for r_dict in r_dicts:
+        #If this building will fit on top of the previous
+            if (y + r_dict['d']) <= max_y:
+                #Choose how to fill the rectangle drawn
+                fill = np.random.choice(colors) if not show_density \
+                            else density_colors[r_dict['f']]
+                #Draw the residence
+                drawing.append(draw.Rectangle(x, 
+                                              y, 
+                                              r_dict['w'], 
+                                              r_dict['d'], 
+                                              fill = fill,
+                                              stroke_width = '0.1', stroke = 'black'))
+                #Width of this building to use for the next
+                previous_width = r_dict['w']
+                #Depth of this buidlign to try to put the next building 
+                #in front of/'on top of'
+                y += r_dict['d']
+                #Remove these building plans from the list
+                r_dicts.remove(r_dict)
+            #Else, continue iterating over hte list of building plans 
+            #looking for one that will fit.
+            #Exit for loop.
+        #After list of building plans has been iterated over, move on to next spot.
+        #Start for loop again. Should iterate fewer and fewer items until last 
+        #residence has been drawn.
+        y = base_y
+        #Start to the right of the previous building, not in front of it
+        x += previous_width
 
 def draw_districts(drawing, column_max, blocks, time_step, 
                 show_density = False):
