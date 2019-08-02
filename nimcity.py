@@ -22,6 +22,8 @@ class Council(object):
     def zone(self, land, to_zone_as):
         land.zoned_as.append(to_zone_as)
     def approve_construction(self, block):
+        #Block gets passed in case we want to do something specific
+        #with certain blocks later on. Same for approve_demoliton.
         approval = bool(np.random.binomial(1, self.construct_p))
         return approval
     def approve_demolition(self, block):
@@ -61,7 +63,7 @@ class Developer(object):
             residence.block.residences[-1].remove(residence)
             #Remove the block from this residence
             residence.demolished = step
-        return residence
+            return residence
     
     def build(self, step, council, block, price_sqft):
         if self.building_approved(council, block) and block.has_enough_area_to_build():
@@ -591,18 +593,18 @@ class Simulation(object):
         #if the block is zoned as 1.
         blocks_with_land_avail = [b for b in blocks if (b.size - sum(r.size for r in b.residences[-1])) > \
                                     ((MIN_RES_SIZE * (b.zoned_as[-1] / 2)) if b.zoned_as[-1] != 1 else MIN_RES_SIZE)]
-        r_built = []
+        rs_built = []
         for b in blocks_with_land_avail:
             #Can build on a block in inverse proportion to the zoning of the block.
             #e.g. Can build 16 times on a zone-1 block, once a zone-16 block.
             build_count = (b.zoned_as[-1] / np.arange(self.zoning_max))
-            r_built.extend([d.build(self.step, council, b, self.price_sqft[-1]) for i in build_count])
-
+            new_rs_on_block = [d.build(self.step, council, b, self.price_sqft[-1]) for i in build_count]
+            rs_built.extend(r for r in new_rs_on_block if r)
         #Add residences built to the list for the developer
         #Don't include None types returned by failed attempts at buliding
-        d.residences_built.append([r for r in r_built if r])
+        d.residences_built.append([r for r in rs_built])
         print(f'{len(blocks_with_land_avail)} blocks have enough land for new residences.')
-        print(f'{len([r for r in r_built if r])} new residences built.')
+        print(f'{len([r for r in rs_built])} new residences built.')
 
     def round_of_demolishing(self, council, developer, blocks):
         '''
@@ -636,16 +638,16 @@ class Simulation(object):
                     #Number of buildings to demolish: the max if there more buildings than this, otherwise
                     #the whole range of buildings available. (Prevents too many from getting demolished at once.)
                     dem_range = np.arange((dem_max if len(r_list) > dem_max else len(r_list)), dtype = np.uint8)
-                    #Demolish all the residences within this range.
+                    #Attempt to demolish all the residences within this range.
                     demolished = [d.demolish(self.step, council, r_list[i]) for i in dem_range]
                     #Append demolished rs to the list.
-                    rs_demolished.append(demolished)
+                    rs_demolished.append([d for d in demolished if d])
             #Repeat for each block in the dict. Then        
             #Flatten the list.        
             rs_demolished = [r for r_list in rs_demolished for r in r_list]
             #Append the list to the developer's own list.
             d.residences_demolished.append(rs_demolished)
-            print(f'{len(rs_demolished)} residences demolished.')        
+            print(f'{len([r for r in rs_demolished if r])} residences demolished.')        
         
     def round_of_moving_in(self):
         '''
