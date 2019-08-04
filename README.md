@@ -7,8 +7,8 @@ NiMCity is a proof of concept for a simulator that can model the workings of a r
 - **images**: Folder with .png diagrams of the program's objects and behavior.
 - **simulations.ipynb**: Jupyter Notebook with an example of a simulation run on San Francisco from 1980 - 2017, with plotted visualizations and hypothesis tests.
 - **nimcity.py**: The Python code defining all the objects and functions in the program.
--**nontechnical_slideshow.pdf**: A pitch deck by a pretend consultancy to sell policy-makers on the utility of the program.
--**sf1970.csv**: Annual population estimates for San Francisco. (See source for the file in simulations.ipynb.) 
+- **nontechnical_slideshow.pdf**: A pitch deck by a pretend consultancy to sell policy-makers on the utility of the program.
+- **sf1970.csv**: Annual population estimates for San Francisco. (See source for the file in simulations.ipynb.) 
 
 ## The objects
 
