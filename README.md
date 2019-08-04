@@ -1,12 +1,24 @@
 # NimCity: An Object-Oriented Housing Market Simulator
 
-NiMCity is a proof of concept for a simulator that can model the workings of a real-life housing market under simplified conditions. It is meant to help policy-makers craft new housing policies by testing them in a simulated municipality that resembles theirs. NimCity contains 'household', 'developer', and 'council' objects imbued with dynamic behavior to act in their interest, even at the expense of other objects. It contains 'districts', 'blocks', 'residences', and 'units' for the developers to build, households to live in, and councils to govern. 
+NiMCity is a proof of concept for a simulator that can model the workings of a real-life housing market under simplified conditions. It is meant to help policy-makers craft new housing policies by testing them in a simulated municipality that resembles theirs. 
 
-![behavior.png](https://raw.githubusercontent.com/ssrosa/housing_market_simulator/master/behavior.png)
+## Repository contents
+
+- **images**: Folder with .png diagrams of the program's objects and behavior.
+- **simulations.ipynb**: Jupyter Notebook with an example of a simulation run on San Francisco from 1980 - 2017, with plotted visualizations and hypothesis tests.
+- **nimcity.py**: The Python code defining all the objects and functions in the program.
+-**nontechnical_slideshow.pdf**: A pitch deck by a pretend consultancy to sell policy-makers on the utility of the program.
+-**sf1970.csv**: Annual population estimates for San Francisco. (See source for the file in simulations.ipynb.) 
+
+## The objects
+
+NimCity contains 'household', 'developer', and 'council' objects imbued with dynamic behavior to act in their interest, even at the expense of other objects. It contains 'districts', 'blocks', 'residences', and 'units' for the developers to build, households to live in, and councils to govern. 
+
+![behavior.png](https://raw.githubusercontent.com/ssrosa/housing_market_simulator/master/images/behavior.png)
 
 NimCity does not contain any actual 'space' or geographical data. Its objects understand the space they occupy as floating point numbers. They are attached to each other as attributes. If the simulation were a 'space', its objects' attachments to each other would give it a structure like this:
 
-![people_places.png](https://raw.githubusercontent.com/ssrosa/housing_market_simulator/master/people_places.png)
+![people_places.png](https://raw.githubusercontent.com/ssrosa/housing_market_simulator/master/images/people_places.png)
 
 Households in units, units in residences, residences on blocks, blocks in districts, distrits in the simulation.
 
@@ -14,7 +26,7 @@ To simulate the effect of supply and demand on the cost of housing over time, th
 
 Over time, this may cause the price of housing to depart from inflation.
 
-![supply_demand.png](https://raw.githubusercontent.com/ssrosa/housing_market_simulator/master/supply_demand.png)
+![supply_demand.png](https://raw.githubusercontent.com/ssrosa/housing_market_simulator/master/images/supply_demand.png)
 
 (The simulation does not contain an algorithm to reduce price in a scenario of over-supply.)
 
@@ -28,7 +40,9 @@ To run the simulation with around half a million households and half a million h
 
 Objects accumulate personal histories as each time step passes. Each object has lists to record the other objects it was attached to and any numerical attributes, like value for a unit or spending power for a household.
 
-![lists.png](https://raw.githubusercontent.com/ssrosa/housing_market_simulator/master/lists.png)
+![lists.png](https://raw.githubusercontent.com/ssrosa/housing_market_simulator/master/images/lists.png)
+
+## Analyzing the data
 
 At the end of the simulation, a History object may be created with the simulation passed to it as a parameter. The History object will take about the same amount of time to instantiate as the simulation took to turn. THe history object uses a set of list comprehensions to crunch the loose unstructured data that accumulated during the simulation into tabular data. The tabular data can be extracted and analyzed.
 
