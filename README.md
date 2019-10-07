@@ -10,9 +10,11 @@ NiMCity is a proof of concept for a simulator that can model the workings of a r
 - **nontechnical_slideshow.pdf**: A pitch deck by a pretend consultancy to sell policy-makers on the utility of the program.
 - **sf1970.csv**: Annual population estimates for San Francisco. (See source for the file in simulations.ipynb.) 
 
+# Overview
+
 ## The objects
 
-NimCity contains 'household', 'developer', and 'council' objects imbued with dynamic behavior to act in their interest, even at the expense of other objects. It contains 'districts', 'blocks', 'residences', and 'units' for the developers to build, households to live in, and councils to govern. 
+NimCity contains objects for people and objects for places. The simulation generates as many people objects as the user inputs. These objects--'households', 'developers', and 'council'--call methods on the place objects in pursuit of their own economic self-interest. The place objects are 'districts', 'blocks', 'residences', and 'units.'D Developers 'build' these buildings; councils 'zone' them; households 'move into' and 'out of' them. 
 
 ![behavior.png](https://raw.githubusercontent.com/ssrosa/housing_market_simulator/master/images/behavior.png)
 
@@ -20,11 +22,11 @@ NimCity does not contain any actual 'space' or geographical data. Its objects un
 
 ![people_places.png](https://raw.githubusercontent.com/ssrosa/housing_market_simulator/master/images/people_places.png)
 
-Households in units, units in residences, residences on blocks, blocks in districts, distrits in the simulation.
+Households in units, units in residences, residences on blocks, blocks in districts, districts in the simulation.
 
-To simulate the effect of supply and demand on the cost of housing over time, there is a demand mechanism. When households seek more units of housing at a given price point than are available, the percentage of households who didn't get what they wanted becomes a price "spike." The value they could have afforded becomes a "ceiling." All units of housing below the "ceiling" get their price increased as a function of the "spike."
+A demand algorithm simulates the effect of supply and demand on the cost of housing over time. When households seek more units of housing at a given price point than are available, the percentage of households who didn't get what they wanted becomes a price 'spike.' The value they could have afforded becomes a 'ceiling.' All units of housing below the 'ceiling' get their price increased as a function of the 'spike.'
 
-Over time, this may cause the price of housing to depart from inflation.
+Over time, this may cause the price of housing to depart from the expected exponential trend of inflation.
 
 ![supply_demand.png](https://raw.githubusercontent.com/ssrosa/housing_market_simulator/master/images/supply_demand.png)
 
@@ -44,6 +46,6 @@ Objects accumulate personal histories as each time step passes. Each object has 
 
 ## Analyzing the data
 
-At the end of the simulation, a History object may be created with the simulation passed to it as a parameter. The History object will take about the same amount of time to instantiate as the simulation took to turn. THe history object uses a set of list comprehensions to crunch the loose unstructured data that accumulated during the simulation into tabular data. The tabular data can be extracted and analyzed.
+At the end of the simulation, the user may create a History object with the simulation passed to it as a parameter. The History object will take about the same amount of time to instantiate as the simulation took to run. THe history object uses a set of list comprehensions to crunch the loose unstructured data that accumulated during the simulation into tabular data. The user may extract and analyze the tabular data.
 
-Objects may also be accessed directly from the simulation object using the list structure above. E.g. the first unit from  the first time step would be `sim.units[-1][0]`. If that unit were assigned to the variable `test_unit`, you could follow the structure all the way up to see what district that unit lived in at a given time step, e.g. `test_unit.housed[-1].residence.block.district` would return the district object that that unit was in at the last time step.
+The user may also access objects from the simulation object using the list structure above. E.g. the first unit from  the first time step would be `sim.units[-1][0]`. If that unit were assigned to the variable `test_unit`, you could follow the structure all the way up to see what district that unit lived in at a given time step, e.g. `test_unit.housed[-1].residence.block.district` would return the district object that that unit was in at the last time step.
